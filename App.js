@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 import Navbar from "./NavBar";
@@ -19,7 +18,6 @@ function App() {
       <Router>
         <Navbar />
         <Routes>
-/* Home page is default page at startup */
           <Route path="/" element={<Home />} />
           <Route path="/image_upload" element={<Image_Upload />} />
         </Routes>
