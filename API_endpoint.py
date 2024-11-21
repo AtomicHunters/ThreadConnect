@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import os
 from PIL import Image
-from models import get_clip_model
+from models import get_clip_model, get_clip_text
 
 
 #These set up a folder to store the uploaded files
@@ -30,6 +30,7 @@ def upload_image():
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], image_file.filename)
         image_file.save(file_path)
 
+    #If there is an error, catch it, and return the error
     except Exception as e:
         return jsonify({'error':f'Failed to save file: {str(e)}'}),500
 
@@ -51,7 +52,7 @@ def upload_text():
     text = data.get('text','')
 
     #Get the embeddings for the text
-    embedding = get_clip_model(text)
+    embedding = get_clip_text(text)
 
     #Return the embedding for testing. Will need to instead send this to the database and return what is given from there.
     return embedding
