@@ -3,7 +3,6 @@ import os
 from PIL import Image
 from models import get_clip_model
 
-app = Flask(__name__)
 
 #These set up a folder to store the uploaded files
 UPLOAD_FOLDER = './uploads'
