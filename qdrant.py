@@ -6,6 +6,7 @@ from PIL import Image
 import torch
 import open_clip
 
+
 # Qdrant Cloud credentials
 url = "https://c76b9de4-57dd-4d26-b97d-58e26fa20663.us-east4-0.gcp.cloud.qdrant.io"  # Replace with your Qdrant URL
 api_key = "vskDD12BlMjBR7sz1uOExbYA6IiSjm7fsSxFAcIJoAT54VuLTlBXhw"  # Replace with your API key
@@ -15,6 +16,7 @@ db_client = QdrantClient(url=url, api_key=api_key)
 
 # Load the CLIP model architecture and preprocessing transforms
 model, _, preprocess = open_clip.create_model_and_transforms('ViT-B-32', pretrained=None)
+tokenizer = open_clip.get_tokenizer('ViT-B-32')
 
 # Load the custom weights
 model_link = r'finetuned_clip_model_weights1for_loss_0.13254774100542496.pth'
@@ -116,4 +118,11 @@ if __name__ == "__main__":
     query_image_path = r"1534.jpg"
     find_similar_images(query_image_path)
 
+def get_clip_text(text):
+    #Tokenize the input
+    txt = tokenizer([text])[0]
 
+    #Generates the embedding with the text
+    with torch.no_grad():
+        query_vector = model.encode_text(txt)
+    return query_vector
