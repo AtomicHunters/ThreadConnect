@@ -43,3 +43,16 @@ def upload_image():
     # Return the embedding for testing. Will need to instead send this to the database and return what is given from there.
     return embedding
 
+@app.route('/text', methods =['POST'])
+def upload_text():
+    #Parse the text as a json into text
+    data = request.get_json()
+
+    #Get the data in the text field
+    text = data.get('text','')
+
+    #Get the embeddings for the text
+    embedding = get_clip_model(text)
+
+    #Return the embedding for testing. Will need to instead send this to the database and return what is given from there.
+    return embedding
