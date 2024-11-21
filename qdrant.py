@@ -42,6 +42,16 @@ def get_clip_model(image: Image.Image) -> torch.Tensor:
         query_vector = model.encode_image(image_tensor)
         return query_vector.squeeze(0).tolist()  # Convert to list for Qdrant compatibility
 
+def get_clip_text(text):
+    #Tokenize the input
+    txt = tokenizer([text])[0]
+
+    #Generates the embedding with the text
+    with torch.no_grad():
+        query_vector = model.encode_text(txt)
+    return query_vector.squeeze(0).tolist()
+
+
 def upload_to_qdrant(image_path: str, product_id: int, description: str):
     """Uploads image embedding to Qdrant."""
     try:
@@ -117,12 +127,3 @@ def find_similar_images(new_image_path: str, top_k: int = 5):
 if __name__ == "__main__":
     query_image_path = r"1534.jpg"
     find_similar_images(query_image_path)
-
-def get_clip_text(text):
-    #Tokenize the input
-    txt = tokenizer([text])[0]
-
-    #Generates the embedding with the text
-    with torch.no_grad():
-        query_vector = model.encode_text(txt)
-    return query_vector
