@@ -1,7 +1,10 @@
 from flask import Flask, jsonify, request
 from PIL import Image
 from io import BytesIO
-from models import get_clip_model, get_clip_text
+
+from scripts.regsetup import description
+
+from models import find_similar_images, get_clip_text, find_similar_desc
 import os
 
 # Initialize the Flask app
@@ -56,14 +59,29 @@ def upload_image():
     except Exception as e:
         return jsonify({'error':f'Failed to save file: {str(e)}'}),500
 
-    # Set the image to the filepath for the saved image
-    image = Image.open(image_file.filename)
+    search_results = find_similar_images(image_file.filename)
 
-    # Now embed the images using the image
-    embedding = get_clip_model(image)
+    filepaths = [], descriptions = [], product_ids = [], similarity_scores = []
+    i = 1
 
-    # Return the embedding for testing. Will need to instead send this to the database and return what is given from there.
-    return embedding
+    for result in search_results:
+        payload = result.payload
+        similarity_score = result.score
+
+        filepaths[i] = payload['file_path']
+        descriptions[i] = payload['description']
+        product_ids[i] = payload['product_id']
+        similarity_scores[i] = similarity_score
+
+    result_json = {
+        "filepaths": filepaths,
+        "descriptions": descriptions,
+        "product_ids": product_ids,
+        "similarity_score":similarity_scores
+    }
+
+    return jsonify(result_json)
+
 
 @app.route('/text', methods =['POST'])
 def upload_text():
@@ -74,7 +92,26 @@ def upload_text():
     text = data.get('text','')
 
     #Get the embeddings for the text
-    embedding = get_clip_text(text)
+    search_results = find_similar_desc(text)
+
+    filepaths = [], descriptions = [], product_ids = [], similarity_scores = []
+    i = 1
+
+    for result in search_results:
+        payload = result.payload
+        similarity_score = result.score
+
+        filepaths[i] = payload['file_path']
+        descriptions[i] = payload['description']
+        product_ids[i] = payload['product_id']
+        similarity_scores[i] = similarity_score
+
+    result_json = {
+        "filepaths": filepaths,
+        "descriptions": descriptions,
+        "product_ids": product_ids,
+        "similarity_score": similarity_scores
+    }
 
     #Return the embedding for testing. Will need to instead send this to the database and return what is given from there.
-    return embedding
+    return jsonify(result_json)
